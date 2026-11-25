@@ -1,0 +1,7 @@
+.next
+.local
+.npm-cache
+pnpm-lock.yaml
+src/payload-types.ts
+src/migrations
+**/importMap.js

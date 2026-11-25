@@ -1,0 +1,9 @@
+﻿allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  '@swc/core': true
+minimumReleaseAgeExclude:
+  - '@axe-core/playwright@4.14.1'
+  - lucide-react@1.79.0
+  - '@types/node@24.19.4'
