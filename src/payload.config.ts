@@ -21,6 +21,9 @@ const {
   BLOB_READ_WRITE_TOKEN,
 } = process.env
 const databaseURL = DATABASE_POSTGRES_PRISMA_URL || DATABASE_URL
+const databaseConnectionString = DATABASE_POSTGRES_PRISMA_URL
+  ? DATABASE_POSTGRES_PRISMA_URL.replace(/([?&])sslmode=[^&]*&?/, '$1').replace(/[?&]$/, '')
+  : databaseURL
 const blobConfigured = Boolean(BLOB_READ_WRITE_TOKEN)
 
 if (
@@ -60,7 +63,7 @@ export default buildConfig({
   globals,
   db: postgresAdapter({
     pool: {
-      connectionString: databaseURL,
+      connectionString: databaseConnectionString,
       max: 5,
       ...(DATABASE_POSTGRES_PRISMA_URL && {
         ssl: { rejectUnauthorized: false },
