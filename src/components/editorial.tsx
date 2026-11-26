@@ -4,7 +4,7 @@ import { PayloadRedirect } from '@/components/payload-redirect'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { Post, Project } from '@/payload-types'
 import { catalogue, document, documents, entry } from '@/lib/content'
-import { formattedDate, pageMetadata } from '@/lib/metadata'
+import { formattedDate, imageURL, pageMetadata } from '@/lib/metadata'
 import { absolute, archive, safeLink } from '@/lib/site'
 import { matchEditorial, searchQuery } from '@/lib/search'
 import {
@@ -16,7 +16,7 @@ import {
   ProjectCard,
   SectionIntro,
 } from './content-parts'
-import { MigrationDiagram } from './diagrams'
+import { ArchiveArtwork, MigrationDiagram } from './diagrams'
 import { Button } from './ui/button'
 
 const bases = { projects: '/projects', posts: '/insights' }
@@ -271,7 +271,11 @@ export function CaseStudy({
         <h1>{project.title}</h1>
         <p>{project.excerpt}</p>
       </div>
-      <Cover media={cover} className="detail-cover" />
+      {imageURL(cover) ? (
+        <Cover media={cover} className="detail-cover" />
+      ) : (
+        <ArchiveArtwork kind={project.visual} />
+      )}
       {metrics.length > 0 && (
         <div className="detail-metrics">
           <Metrics metrics={metrics} />

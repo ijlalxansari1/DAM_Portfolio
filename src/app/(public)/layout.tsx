@@ -3,10 +3,8 @@ import type { ReactNode } from 'react'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { global } from '@/lib/content'
-import { SiteFooter } from '@/components/site-shell'
-import { SiteHeader } from '@/components/site-header'
+import { SiteFooter, SiteHeader } from '@/components/site-shell'
 import './styles.css'
-import './portfolio-frame.css'
 
 const geist = localFont({
   src: './fonts/geistvariable.woff2',
@@ -34,7 +32,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
         </a>
         <SiteHeader header={header} />
         <main id="main-content">{children}</main>
-        <SiteFooter footer={footer} />
+        <SiteFooter footer={footer} header={header} />
         {process.env.VERCEL_ENV === 'production' && (
           <>
             <Analytics />

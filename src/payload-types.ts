@@ -1445,6 +1445,9 @@ export interface Header {
     | null;
   ctaLabel: string;
   ctaHref: string;
+  linkedinURL?: string | null;
+  githubURL?: string | null;
+  whatsappURL?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1716,6 +1719,9 @@ export interface HeaderSelect<T extends boolean = true> {
       };
   ctaLabel?: T;
   ctaHref?: T;
+  linkedinURL?: T;
+  githubURL?: T;
+  whatsappURL?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

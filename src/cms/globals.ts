@@ -111,6 +111,9 @@ export const globals: GlobalConfig[] = [
     { ...links, defaultValue: navigation },
     { ...text('ctaLabel', true), defaultValue: 'Get in touch' },
     { ...link('ctaHref', true), defaultValue: '/#contact' },
+    link('linkedinURL'),
+    link('githubURL'),
+    link('whatsappURL'),
   ]),
   global('footer', 'Footer', [text('name'), text('descriptor'), links]),
   global('siteSettings', 'Site settings', [

@@ -4,7 +4,7 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { s3Storage } from '@payloadcms/storage-s3'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 import { administrator, editor } from '@/cms/access'
@@ -17,21 +17,16 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 const {
   DATABASE_URL,
   PAYLOAD_SECRET,
-  R2_BUCKET,
-  R2_ENDPOINT,
-  R2_ACCESS_KEY_ID,
-  R2_SECRET_ACCESS_KEY,
+  BLOB_READ_WRITE_TOKEN,
 } = process.env
-const r2Configured = Boolean(
-  R2_BUCKET && R2_ENDPOINT && R2_ACCESS_KEY_ID && R2_SECRET_ACCESS_KEY,
-)
+const blobConfigured = Boolean(BLOB_READ_WRITE_TOKEN)
 
 if (
   process.env.VERCEL &&
-  (!DATABASE_URL || !PAYLOAD_SECRET || !r2Configured || !process.env.SITE_URL)
+  (!DATABASE_URL || !PAYLOAD_SECRET || !blobConfigured || !process.env.SITE_URL)
 ) {
   throw new Error(
-    'Set DATABASE_URL, PAYLOAD_SECRET, SITE_URL and all four R2 variables before deploying.',
+    'Set DATABASE_URL, PAYLOAD_SECRET, SITE_URL and BLOB_READ_WRITE_TOKEN before deploying.',
   )
 }
 
@@ -85,7 +80,7 @@ export default buildConfig({
     autoGenerate: false,
   },
   graphQL: { disable: true, disablePlaygroundInProduction: true },
-  upload: { limits: { fileSize: (r2Configured ? 30 : 3) * 1024 * 1024 } },
+  upload: { limits: { fileSize: (blobConfigured ? 30 : 3) * 1024 * 1024 } },
   plugins: [
     seoPlugin({
       collections: ['projects', 'posts'],
@@ -128,24 +123,16 @@ export default buildConfig({
       },
       redirectTypeFieldOverride: { defaultValue: '301' },
     }),
-    s3Storage({
-      bucket: R2_BUCKET || 'local-media',
-      enabled: r2Configured,
+    vercelBlobStorage({
+      enabled: blobConfigured,
       alwaysInsertFields: true,
+      addRandomSuffix: true,
       clientUploads: {
         access: ({ req }) =>
           req.user?.role === 'admin' || req.user?.role === 'editor',
       },
+      token: BLOB_READ_WRITE_TOKEN,
       collections: { media: { prefix: 'archive' } },
-      config: {
-        endpoint: R2_ENDPOINT,
-        region: 'auto',
-        forcePathStyle: true,
-        credentials: {
-          accessKeyId: R2_ACCESS_KEY_ID!,
-          secretAccessKey: R2_SECRET_ACCESS_KEY!,
-        },
-      },
     }),
   ],
 })

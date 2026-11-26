@@ -1,6 +1,7 @@
 import * as migration_20261125_130807_initial_archive from './20261125_130807_initial_archive';
 import * as migration_20261125_131231_media_storage from './20261125_131231_media_storage';
 import * as migration_20261125_140000_search_and_enquiry_limits from './20261125_140000_search_and_enquiry_limits';
+import * as migration_20261126_204500_header_social_links from './20261126_204500_header_social_links';
 
 export const migrations = [
   {
@@ -17,5 +18,10 @@ export const migrations = [
     up: migration_20261125_140000_search_and_enquiry_limits.up,
     down: migration_20261125_140000_search_and_enquiry_limits.down,
     name: '20261125_140000_search_and_enquiry_limits',
+  },
+  {
+    up: migration_20261126_204500_header_social_links.up,
+    down: migration_20261126_204500_header_social_links.down,
+    name: '20261126_204500_header_social_links',
   },
 ];

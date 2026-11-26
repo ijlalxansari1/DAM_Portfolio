@@ -37,7 +37,6 @@ export const sectionDefinitions = [
 ] as const
 
 export type SectionKind = (typeof sectionDefinitions)[number]['slug']
-export type SectionAnchor = (typeof sectionDefinitions)[number]['anchor']
 
 export function siteURL() {
   return process.env.SITE_URL || 'http://localhost:3000'

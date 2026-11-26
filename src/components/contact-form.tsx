@@ -69,7 +69,7 @@ export function ContactForm() {
         Leave blank
         <input name="website" tabIndex={-1} autoComplete="off" />
       </label>
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" variant="inverse" disabled={pending}>
         {pending ? 'Sending…' : 'Send enquiry'}
       </Button>
       <p

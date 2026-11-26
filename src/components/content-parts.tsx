@@ -1,9 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { safeLink } from '@/lib/site'
+import { archive, safeLink } from '@/lib/site'
 import { document, documents } from '@/lib/content'
 import { imageURL } from '@/lib/metadata'
 import type { Media, Metric, Post, Project } from '@/payload-types'
+import { ArchiveArtwork } from './diagrams'
 
 export function JsonLd({ data }: { data: object }) {
   return (
@@ -78,17 +79,20 @@ export function ProjectCard({ project }: { project: Project }) {
   const organisation = document(project.organisation)
   return (
     <article className="project-card">
-      <p className="project-affiliation">
-        <span>{organisation?.name ?? 'Case study'}</span>
-        <span>{project.period}</span>
-      </p>
+      {imageURL(cover) ? (
+        <Cover media={cover} />
+      ) : (
+        <ArchiveArtwork kind={project.visual} compact />
+      )}
       <div className="card-body">
+        <p className="eyebrow">
+          {organisation?.name ?? 'Case study'} <span>{project.period}</span>
+        </p>
         <h3>
           <Link href={'/projects/' + project.slug}>{project.title}</Link>
         </h3>
         <p>{project.excerpt}</p>
       </div>
-      <Cover media={cover} className="project-listing-cover" />
     </article>
   )
 }
@@ -124,7 +128,7 @@ export function Breadcrumbs({
     <nav aria-label="Breadcrumb" className="breadcrumbs">
       <ol>
         <li>
-          <Link href="/">Home</Link>
+          <Link href="/">{archive.name}</Link>
         </li>
         {links.map(({ href, label }, index) => (
           <li key={href}>

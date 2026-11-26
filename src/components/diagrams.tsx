@@ -108,6 +108,81 @@ export function ArchiveDiagram() {
   )
 }
 
+export function ArchiveArtwork({
+  kind,
+  compact = false,
+}: {
+  kind?: string | null
+  compact?: boolean
+}) {
+  const visual = kind || 'archive'
+  const migration = visual === 'migration'
+  const stages = migration
+    ? ['Source assets', 'Governed ingest', 'Orange Logic']
+    : visual === 'workflow'
+      ? ['Brief', 'Review', 'Publish']
+      : visual === 'rights'
+        ? ['Record', 'Permission', 'Channel']
+        : ['Accession', 'Description', 'Subject']
+  return (
+    <div
+      className={'archive-art art-' + visual + (compact ? ' art-compact' : '')}
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 560 270" preserveAspectRatio="xMidYMid slice">
+        {Array.from({ length: 10 }, (_, index) => (
+          <ellipse
+            key={index}
+            cx="280"
+            cy="135"
+            rx={42 + index * 25}
+            ry={21 + index * 12}
+            fill="none"
+            stroke="currentColor"
+            strokeOpacity={index % 2 ? 0.18 : 0.32}
+            transform="rotate(-20 280 135)"
+          />
+        ))}
+        <path
+          d="M90 135h380M280 37v196"
+          stroke="currentColor"
+          strokeOpacity=".5"
+          strokeDasharray="5 7"
+        />
+        {[132, 280, 428].map((x, i) => (
+          <g transform={'translate(' + x + ' 135)'} key={x}>
+            <circle
+              r={i === 1 ? 26 : 12}
+              fill="var(--art-bg)"
+              stroke="currentColor"
+            />
+            <circle r={i === 1 ? 5 : 3} fill="currentColor" />
+            {i === 1 && (
+              <circle
+                r="35"
+                fill="none"
+                stroke="currentColor"
+                strokeOpacity=".5"
+              />
+            )}
+            {!compact && (
+              <text
+                y={i === 1 ? 67 : 43}
+                textAnchor="middle"
+                fill="currentColor"
+                fontSize="13"
+                fontWeight="600"
+              >
+                {stages[i]}
+              </text>
+            )}
+          </g>
+        ))}
+      </svg>
+    </div>
+  )
+}
+
 export function MigrationDiagram() {
   return (
     <figure className="migration-figure">

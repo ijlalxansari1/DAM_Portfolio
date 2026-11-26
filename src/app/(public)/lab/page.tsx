@@ -1,6 +1,5 @@
 import { Workspace } from '@/components/lab-workspace'
 import { Breadcrumbs } from '@/components/content-parts'
-import { ArchiveDiagram } from '@/components/diagrams'
 import { catalogue, global } from '@/lib/content'
 import { pageMetadata } from '@/lib/metadata'
 import type { AssetRecord, LabView, TermRecord, WorkflowStage } from '@/lib/lab'
@@ -87,10 +86,6 @@ export default async function Page({
         workflowName={workflow?.name}
         workflowDescription={workflow?.description}
       />
-      <details className="lab-model">
-        <summary>How the archive fits together</summary>
-        <ArchiveDiagram />
-      </details>
     </section>
   )
 }

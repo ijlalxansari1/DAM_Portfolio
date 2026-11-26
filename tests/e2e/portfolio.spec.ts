@@ -10,7 +10,7 @@ test('homepage, case study and independently accessible URLs', async ({
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Khalid Ansari',
+      name: 'Making digital assets work smarter.',
     }),
   ).toBeVisible()
   if (isMobile) {
@@ -36,88 +36,6 @@ test('homepage, case study and independently accessible URLs', async ({
   expect(
     (await request.get('/admin', { maxRedirects: 0 })).status(),
   ).toBeLessThan(400)
-})
-
-test('navigation highlights the section being read and follows anchor links', async ({
-  page,
-  isMobile,
-}) => {
-  const header = page.locator('.site-header')
-  const menu = header.getByText('Menu', { exact: true })
-  async function expectCurrent(label: string) {
-    if (isMobile) {
-      await expect(header.locator('.mobile-nav-current')).toHaveText(label)
-    } else {
-      await expect(
-        header.getByRole('link', { name: label, exact: true }),
-      ).toHaveAttribute('aria-current', 'location')
-    }
-  }
-  async function scrollTo(section: string) {
-    await page
-      .locator('#' + section)
-      .evaluate((target) => target.scrollIntoView({ block: 'start' }))
-  }
-
-  await page.goto('/')
-  await expectCurrent(isMobile ? 'Home' : 'Khalid Ansari home')
-  await scrollTo('projects')
-  await expectCurrent('Work')
-  await scrollTo('dam-lab')
-  await expectCurrent('DAM Lab')
-  if (isMobile) {
-    const bounds = await menu.boundingBox()
-    if (!bounds) throw new Error('The sticky mobile menu is not visible.')
-    // Tap the menu in place so the test does not scroll the sticky header into view.
-    await page.touchscreen.tap(
-      bounds.x + bounds.width / 2,
-      bounds.y + bounds.height / 2,
-    )
-  }
-  const navigation = header.getByRole('navigation', {
-    name: isMobile ? 'Primary mobile' : 'Primary',
-    exact: true,
-  })
-  await expect(
-    navigation.getByRole('link', { name: 'DAM Lab' }),
-  ).toHaveAttribute('aria-current', 'location')
-  await navigation.getByRole('link', { name: 'Insights' }).click()
-  await expect(page).toHaveURL(/#insights$/)
-  await expectCurrent('Insights')
-  if (isMobile) await expect(navigation).toBeHidden()
-
-  await page.goto('/#expertise')
-  await expectCurrent('Expertise')
-  await scrollTo('experience')
-  await expectCurrent('About')
-  await page.evaluate(() =>
-    window.scrollTo(0, document.documentElement.scrollHeight),
-  )
-  await expectCurrent('Get in touch')
-  await page.evaluate(() => window.scrollTo(0, 0))
-  await expectCurrent(isMobile ? 'Home' : 'Khalid Ansari home')
-  await page.goto('/projects')
-  await expectCurrent('Work')
-})
-
-test('expertise expands by keyboard and experience reveals role details', async ({
-  page,
-}) => {
-  await page.goto('/#expertise')
-  const topics = page.locator('#expertise .capability')
-  await expect(topics.first()).toHaveAttribute('open', '')
-  const second = topics.nth(1)
-  const summary = second.locator('summary')
-  await summary.focus()
-  await summary.press('Enter')
-  await expect(second.locator('.capability-body')).toBeVisible()
-  await expect(topics.first().locator('.capability-body')).toBeHidden()
-  await expect(second.getByRole('link').first()).toBeVisible()
-
-  const role = page.locator('#experience .timeline-details').first()
-  await expect(role.getByRole('list')).toBeHidden()
-  await role.locator('summary').click()
-  await expect(role.getByRole('list')).toBeVisible()
 })
 
 test('search archives and apply an editorial topic filter', async ({

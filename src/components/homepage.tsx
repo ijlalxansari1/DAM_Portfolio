@@ -1,19 +1,17 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import {
   Archive,
-  ArrowUpRight,
+  ArrowDown,
   Layers3,
   MapPin,
   Network,
-  Plus,
   ShieldCheck,
   Workflow,
 } from 'lucide-react'
 import { catalogue, document, documents, global, payload } from '@/lib/content'
 import { imageURL } from '@/lib/metadata'
 import { absolute, archive, safeLink, sectionDefinitions } from '@/lib/site'
-import type { Homepage, Profile, Project, User } from '@/payload-types'
+import type { Homepage, Project, User } from '@/payload-types'
 import {
   Cover,
   JsonLd,
@@ -22,6 +20,7 @@ import {
   ProjectCard,
   SectionIntro,
 } from './content-parts'
+import { ArchiveArtwork, ArchiveDiagram } from './diagrams'
 import { Button } from './ui/button'
 import { ContactForm } from './contact-form'
 
@@ -46,9 +45,13 @@ function Featured({ project }: { project: Project }) {
   const organisation = document(project.organisation)
   const metrics = documents(project.metrics)
   const media = document(project.cover)
-  const hasImage = media?.mimeType?.startsWith('image/') && imageURL(media)
   return (
     <article className="featured-card">
+      {imageURL(media) ? (
+        <Cover media={media} className="feature-image" />
+      ) : (
+        <ArchiveArtwork kind={project.visual} />
+      )}
       <div className="featured-copy">
         <p className="eyebrow">
           {organisation?.name || 'Case study'} <span>{project.period}</span>
@@ -57,140 +60,77 @@ function Featured({ project }: { project: Project }) {
           <Link href={'/projects/' + project.slug}>{project.title}</Link>
         </h3>
         <p>{project.excerpt}</p>
+        <Metrics metrics={metrics.slice(0, 2)} />
         <Link className="text-link" href={'/projects/' + project.slug}>
           Read the case study
         </Link>
       </div>
-      {(hasImage || metrics.length > 0) && (
-        <div className="featured-evidence">
-          {hasImage && <Cover media={media} className="feature-image" />}
-          {metrics.length > 0 && <Metrics metrics={metrics.slice(0, 2)} />}
-        </div>
-      )}
     </article>
   )
 }
 
-function PortfolioProfile({ profile }: { profile: Profile }) {
-  const name = profile.name || archive.person
-  const initials = name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join('')
-  const cv = imageURL(document(profile.cv))
-  const portrait = document(profile.portrait)
-  const hasPortrait =
-    portrait?.mimeType?.startsWith('image/') && imageURL(portrait)
-
-  return (
-    <aside className="portfolio-profile" aria-label="Profile">
-      <div
-        className="portfolio-profile-cover"
-        data-portrait={hasPortrait ? 'true' : undefined}
-      >
-        {hasPortrait ? (
-          <Cover media={portrait} className="portfolio-portrait" />
-        ) : (
-          <>
-            <Image
-              src="/images/archive-still-life.webp"
-              alt=""
-              width={1000}
-              height={1250}
-              preload
-              unoptimized
-              className="portfolio-cover-texture"
-            />
-            <span className="portfolio-monogram" aria-hidden="true">
-              {initials}
-            </span>
-          </>
-        )}
-      </div>
-      <div className="portfolio-identity">
-        <h1>{name}</h1>
-        <p className="portfolio-role">{profile.title || archive.positioning}</p>
-        <p className="portfolio-location">
-          <MapPin size={16} aria-hidden />
-          {profile.location || archive.location}
-        </p>
-      </div>
-      <div className="portfolio-profile-actions">
-        <a href="#contact">
-          Contact me <ArrowUpRight size={15} aria-hidden />
-        </a>
-        {cv && (
-          <a href={cv} download>
-            Download CV
-          </a>
-        )}
-      </div>
-    </aside>
-  )
-}
-
-function Hero({
+async function Hero({
   section,
-  featured,
 }: {
   section: Extract<Section, { blockType: 'hero' }>
-  featured?: Project
 }) {
+  const profile = await global('profile')
+  const cv = imageURL(document(profile.cv))
   const workHref = safeLink(section.ctaHref) ? section.ctaHref : '/#work'
   const workLabel = section.ctaLabel || 'Explore My Work'
-  const workTitle =
-    section.heading && section.heading !== archive.headline
-      ? section.heading
-      : 'I make digital collections easier to use.'
-  const organisation = document(featured?.organisation)
-
   return (
-    <section className="portfolio-intro">
-      <div className="portfolio-intro-copy">
-        <p className="eyebrow">
-          {section.eyebrow || 'Digital asset management & metadata governance'}
-        </p>
-        <h2>{workTitle}</h2>
-        <p className="portfolio-intro-description">
-          {section.description || archive.description}
-        </p>
-        <div className="portfolio-intro-actions">
-          <Button asChild>
-            {workHref.startsWith('/#') ? (
-              <a href={workHref.slice(1)}>{workLabel}</a>
-            ) : (
-              <Link href={workHref}>{workLabel}</Link>
-            )}
-          </Button>
-          <Link
-            className="text-link"
-            href={
-              safeLink(section.secondaryHref) ? section.secondaryHref : '/lab'
-            }
-          >
-            {section.secondaryLabel || 'Experience the DAM Lab'}
-          </Link>
-        </div>
-      </div>
-      {featured && (
-        <div className="portfolio-spotlight">
-          <div>
-            <p className="eyebrow">
-              {organisation?.name || 'Selected case study'}
-              {featured.period && <> · {featured.period}</>}
-            </p>
-            <h3>
-              <Link href={'/projects/' + featured.slug}>
-                {featured.title}
-                <ArrowUpRight size={21} aria-hidden />
+    <section
+      className={
+        'hero' + (section.layout === 'wide-diagram' ? ' hero-wide' : '')
+      }
+      id="home"
+    >
+      <div className="wrap hero-grid">
+        <div className="hero-copy">
+          <p className="eyebrow hero-eyebrow">
+            <span className="marker" />
+            {section.eyebrow || 'Digital asset management'}
+          </p>
+          <h1>{section.heading || archive.headline}</h1>
+          <p className="hero-description">
+            {section.description || archive.description}
+          </p>
+          <div className="hero-actions">
+            <Button asChild>
+              {workHref.startsWith('/#') ? (
+                <a href={workHref.slice(1)}>{workLabel}</a>
+              ) : (
+                <Link href={workHref}>{workLabel}</Link>
+              )}
+            </Button>
+            <Button asChild variant="secondary">
+              <Link
+                href={
+                  safeLink(section.secondaryHref)
+                    ? section.secondaryHref
+                    : '/lab'
+                }
+              >
+                {section.secondaryLabel || 'Experience the DAM Lab'}
               </Link>
-            </h3>
+            </Button>
           </div>
-          <p>{featured.excerpt}</p>
+          <p className="hero-role">{profile.title || archive.positioning}</p>
+          <div className="hero-meta">
+            <MapPin size={16} aria-hidden />
+            {profile.location || archive.location}
+            {cv && (
+              <>
+                <span aria-hidden>·</span>
+                <a href={cv} download>
+                  Download CV
+                </a>
+              </>
+            )}
+          </div>
         </div>
-      )}
+        <ArchiveDiagram />
+      </div>
     </section>
   )
 }
@@ -207,7 +147,7 @@ async function RenderSection({ section }: { section: Section }) {
     return null
   switch (section.blockType) {
     case 'hero':
-      return null
+      return <Hero section={section} />
     case 'impact': {
       const values = documents(section.metrics)
       if (!values.length) return null
@@ -228,7 +168,7 @@ async function RenderSection({ section }: { section: Section }) {
       const project = document(section.projects)
       if (!project) return null
       return (
-        <section id={anchor} className="wrap section homepage-featured">
+        <section id={anchor} className="wrap section">
           <SectionIntro {...section} />
           <Featured project={project} />
         </section>
@@ -264,45 +204,16 @@ async function RenderSection({ section }: { section: Section }) {
         <section id={anchor} className="section paper-section">
           <div className="wrap">
             <SectionIntro {...section} />
-            <div className="capability-list">
-              {expertise.map((item, index) => {
+            <div className="capability-grid">
+              {expertise.map((item) => {
                 const category = document(item.category)?.slug
                 const Icon = icons[category as keyof typeof icons] ?? Layers3
-                const projects = documents(item.relatedProjects)
                 return (
-                  <details
-                    key={item.id}
-                    name="portfolio-expertise"
-                    open={index === 0}
-                    className="capability"
-                  >
-                    <summary>
-                      <Icon size={23} strokeWidth={1.65} aria-hidden />
-                      <span>{item.name}</span>
-                      <Plus
-                        className="disclosure-indicator"
-                        size={19}
-                        aria-hidden
-                      />
-                    </summary>
-                    <div className="capability-body">
-                      <p>{item.description}</p>
-                      {projects.length > 0 && (
-                        <ul aria-label="Related case studies">
-                          {projects.map((project) => (
-                            <li key={project.id}>
-                              <Link
-                                className="text-link"
-                                href={'/projects/' + project.slug}
-                              >
-                                {project.title}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </details>
+                  <article key={item.id}>
+                    <Icon size={24} strokeWidth={1.6} aria-hidden />
+                    <h3>{item.name}</h3>
+                    <p>{item.description}</p>
+                  </article>
                 )
               })}
             </div>
@@ -316,7 +227,7 @@ async function RenderSection({ section }: { section: Section }) {
           <div className="lab-teaser">
             <div>
               <SectionIntro {...section} />
-              <Button asChild variant="secondary">
+              <Button asChild variant="inverse">
                 <Link
                   href={safeLink(section.ctaHref) ? section.ctaHref : '/lab'}
                 >
@@ -327,22 +238,26 @@ async function RenderSection({ section }: { section: Section }) {
             <div className="lab-teaser-stack">
               {[
                 {
+                  Icon: Archive,
                   name: 'Asset catalogue',
                   detail: 'Search by asset, subject or collection',
                   panel: 'library',
                 },
                 {
+                  Icon: Network,
                   name: 'Controlled vocabulary',
                   detail: 'Find preferred terms and their synonyms',
                   panel: 'taxonomy',
                 },
                 {
+                  Icon: ShieldCheck,
                   name: 'Rights & workflow',
                   detail: 'Check access and distribution rules',
                   panel: 'workflow',
                 },
-              ].map(({ name, detail, panel }) => (
+              ].map(({ Icon, name, detail, panel }) => (
                 <Link key={panel} href={'/lab?view=' + panel}>
+                  <Icon size={21} aria-hidden />
                   <span>
                     <strong>{name}</strong>
                     <small>{detail}</small>
@@ -412,23 +327,11 @@ async function RenderSection({ section }: { section: Section }) {
                   <p className="timeline-org">
                     {document(role.organisation)?.name}
                   </p>
-                  {!!role.responsibilities?.length && (
-                    <details className="timeline-details">
-                      <summary>
-                        Responsibilities
-                        <Plus
-                          className="disclosure-indicator"
-                          size={16}
-                          aria-hidden
-                        />
-                      </summary>
-                      <ul>
-                        {role.responsibilities.map((result) => (
-                          <li key={result.id || result.text}>{result.text}</li>
-                        ))}
-                      </ul>
-                    </details>
-                  )}
+                  <ul>
+                    {role.responsibilities?.map((result) => (
+                      <li key={result.id || result.text}>{result.text}</li>
+                    ))}
+                  </ul>
                 </div>
               </li>
             ))}
@@ -484,6 +387,7 @@ async function RenderSection({ section }: { section: Section }) {
                 {profile.title || archive.positioning}
               </p>
               <p>{profile.biography}</p>
+              <Cover media={document(profile.portrait)} />
             </div>
           </div>
         </section>
@@ -550,14 +454,6 @@ export async function HomepageContent({ previewUser }: { previewUser?: User }) {
   const sections = homepage.sections?.length
     ? homepage.sections
     : [{ blockType: 'hero' as const }, { blockType: 'contact' as const }]
-  const intro = sections.find((section) => section.blockType === 'hero') ?? {
-    blockType: 'hero' as const,
-  }
-  const featured = sections.find(
-    (section) => section.blockType === 'featured' && section.enabled !== false,
-  )
-  const selectedProject =
-    featured?.blockType === 'featured' ? document(featured.projects) : undefined
   return (
     <>
       {!previewUser && (
@@ -585,26 +481,15 @@ export async function HomepageContent({ previewUser }: { previewUser?: User }) {
           }}
         />
       )}
-      <section
-        id="home"
-        aria-label="Portfolio"
-        className={
-          previewUser
-            ? 'portfolio-shell'
-            : 'portfolio-shell portfolio-shell--home'
-        }
-      >
-        <PortfolioProfile profile={profile} />
-        <div className="portfolio-pages">
-          <Hero section={intro} featured={selectedProject} />
-          {sections.map((section) => (
-            <RenderSection
-              key={section.id || section.blockType}
-              section={section}
-            />
-          ))}
-        </div>
-      </section>
+      {sections.map((section) => (
+        <RenderSection
+          key={section.id || section.blockType}
+          section={section}
+        />
+      ))}
+      <Link href="/#home" className="sr-only">
+        <ArrowDown /> Return to the top
+      </Link>
     </>
   )
 }
