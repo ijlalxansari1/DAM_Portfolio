@@ -59,7 +59,13 @@ export default buildConfig({
   collections,
   globals,
   db: postgresAdapter({
-    pool: { connectionString: databaseURL, max: 5 },
+    pool: {
+      connectionString: databaseURL,
+      max: 5,
+      ...(DATABASE_POSTGRES_PRISMA_URL && {
+        ssl: { rejectUnauthorized: false },
+      }),
+    },
     push: false,
     migrationDir: path.join(dirname, 'migrations'),
   }),
