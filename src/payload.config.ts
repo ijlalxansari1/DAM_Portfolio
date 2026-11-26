@@ -16,17 +16,19 @@ import { archive, localURL, siteURL } from '@/lib/site'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const {
   DATABASE_URL,
+  DATABASE_POSTGRES_PRISMA_URL,
   PAYLOAD_SECRET,
   BLOB_READ_WRITE_TOKEN,
 } = process.env
+const databaseURL = DATABASE_POSTGRES_PRISMA_URL || DATABASE_URL
 const blobConfigured = Boolean(BLOB_READ_WRITE_TOKEN)
 
 if (
   process.env.VERCEL &&
-  (!DATABASE_URL || !PAYLOAD_SECRET || !blobConfigured || !process.env.SITE_URL)
+  (!databaseURL || !PAYLOAD_SECRET || !blobConfigured || !process.env.SITE_URL)
 ) {
   throw new Error(
-    'Set DATABASE_URL, PAYLOAD_SECRET, SITE_URL and BLOB_READ_WRITE_TOKEN before deploying.',
+    'Set DATABASE_URL or DATABASE_POSTGRES_PRISMA_URL, PAYLOAD_SECRET, SITE_URL and BLOB_READ_WRITE_TOKEN before deploying.',
   )
 }
 
@@ -57,7 +59,7 @@ export default buildConfig({
   collections,
   globals,
   db: postgresAdapter({
-    pool: { connectionString: DATABASE_URL, max: 5 },
+    pool: { connectionString: databaseURL, max: 5 },
     push: false,
     migrationDir: path.join(dirname, 'migrations'),
   }),
