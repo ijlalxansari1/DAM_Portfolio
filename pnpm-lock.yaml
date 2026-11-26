@@ -1652,6 +1652,7 @@ packages:
       payload: 3.94.1
 
   '@payloadcms/storage-vercel-blob@3.94.1(payload@3.94.1(graphql@16.15.0)(supports-color@7.2.0)(typescript@6.0.3))':
+    resolution: {integrity: sha512-X57ZT2qtG2MATPgmXTvn8+4hViEp1Sj8OG1X/PrFyqp63uaBPJGvsIvJjt+3nBe2h3ugnZRjWIqn+D9reFIBnQ==}
     dependencies:
       '@payloadcms/plugin-cloud-storage': 3.94.1(@types/react@19.3.0)(monaco-editor@0.58.0)(next@16.4.6(@babel/core@7.29.13(supports-color@7.2.0))(@playwright/test@1.65.1)(@types/node@24.19.4)(babel-plugin-macros@3.1.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(sass@1.77.4))(payload@3.94.1(graphql@16.15.0)(supports-color@7.2.0)(typescript@6.0.3))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(typescript@6.0.3)
       '@vercel/blob': 2.3.1
